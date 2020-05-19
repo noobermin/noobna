@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+# compile
+cc testnoobna.c -o testnoobna ||
+    ( echo "failed during compile!" && exit 1 );
+
+./testnoobna test.dat>new.txt
+if [ $(diff new.txt testoutput.txt | wc -l) -gt 0 ]; then
+    echo "failed during comparison"
+    exit 2;
+fi
+rm testnoobna new.txt;
+echo "passed test"
