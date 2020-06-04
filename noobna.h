@@ -53,7 +53,8 @@ typedef struct nbna_ {
   int  nbna_loadfile(FILE*, noobna_t*);
   _nbna_float* nbna_getndim(const noobna_t*,_nbna_int);
   _nbna_float* nbna_getq(const noobna_t*);
-
+  _nbna_int nbna_getI(const noobna_t*, ...);
+  _nbna_int nbna_getIa(const noobna_t*, const _nbna_int*);
 #endif
 
 #ifdef NOOBNA_IMPL
