@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+for i in {0..2}; do
+for j in {0..2}; do
+for k in {0..2}; do
+    ./test_nbna_getI3 test.dat $i $j $k
+done; done; done;
+

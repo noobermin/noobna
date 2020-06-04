@@ -36,8 +36,10 @@ errors.
 ---------------------------------------------------------------------*/
 #include <stdio.h>
 #include <stdlib.h>
-typedef int   _nbna_int;
-typedef float _nbna_float;
+#include <stdarg.h>
+
+typedef int    _nbna_int;
+typedef double _nbna_float;
 
 typedef struct nbna_ {
   _nbna_int n,sz;
@@ -49,8 +51,8 @@ typedef struct nbna_ {
 #if !defined(NOOBNA_IMPL) && !defined(NOOBNA_STATIC)
   void nbna_clean(noobna_t*);
   int  nbna_loadfile(FILE*, noobna_t*);
-  _nbna_float* nbna_getndim(noobna_t*,_nbna_int);
-  _nbna_float* nbna_getq(noobna_t*);
+  _nbna_float* nbna_getndim(const noobna_t*,_nbna_int);
+  _nbna_float* nbna_getq(const noobna_t*);
 
 #endif
 
@@ -63,7 +65,7 @@ typedef struct nbna_ {
  #define NOOBNA_STATIC
 #endif /* NOOBNA_STATIC */
 
-NOOBNA_STATIC _nbna_float* nbna_getndim(noobna_t* in, _nbna_int n) {
+NOOBNA_STATIC _nbna_float* nbna_getndim(const noobna_t* in, _nbna_int n) {
   size_t offset=0;
   if (n > in->n) return NULL;
   while ((--n)>=0)
@@ -71,9 +73,38 @@ NOOBNA_STATIC _nbna_float* nbna_getndim(noobna_t* in, _nbna_int n) {
   return in->x + offset;
 }
 
-NOOBNA_STATIC _nbna_float* nbna_getq(noobna_t* in) {
+NOOBNA_STATIC _nbna_float* nbna_getq(const noobna_t* in) {
   return in->x + in->_off;
 }
+
+NOOBNA_STATIC _nbna_int nbna_getI(const noobna_t* in, ...) {
+  va_list args;
+  _nbna_int
+    len = in->n, I = 0, fac = 1, n = 0;
+  for(n=0; n < len; ++n) fac *= in->ns[n]; /* allow div of in->ns[0] in following */
+  va_start(args, len);
+  for(n=0; n < len; ++n) {
+    _nbna_int curi=0;
+    fac /= in->ns[n];
+    curi = va_arg(args, _nbna_int);
+    I += curi*fac;
+  }
+  va_end(args);
+  return I;
+}
+
+NOOBNA_STATIC _nbna_int nbna_getIa(const noobna_t* in, const _nbna_int* Is) {
+  _nbna_int
+    len = in->n, I = 0, fac = 1, n = 0;
+  for(n=0; n < len; ++n) fac *= in->ns[n]; /* allow div of in->ns[0] in following */
+  for(n=0; n < len; ++n) {
+    fac /= in->ns[n];
+    I += Is[n]*fac;
+  }
+  return I;
+}
+
+
 
 
 NOOBNA_STATIC void nbna_clean(noobna_t* out) {

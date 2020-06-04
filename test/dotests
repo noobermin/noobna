@@ -1,13 +1,39 @@
 #!/usr/bin/env bash
 
 # compile
-cc testnoobna.c -o testnoobna ||
-    ( echo "failed during compile!" && exit 1 );
+cd ../util/
+make
 
-./testnoobna test.dat>new.txt
-if [ $(diff new.txt testoutput.txt | wc -l) -gt 0 ]; then
-    echo "failed during comparison"
-    exit 2;
+if [ "$?" -gt 0 ]; then
+    echo "failed during make!"
+    exit 1
 fi
-rm testnoobna new.txt;
-echo "passed test"
+
+cd ../test/
+
+cp -v ../util/dumpnoobna      ./
+cp -v ../util/nbna_getval     ./
+cp -v ../util/test_nbna_getI3 ./
+
+doatest() {
+    base=$1
+    ref=testref_$base
+    test=testoutput_$base
+    $2 test.dat>$test
+    if [ $(diff $test $ref | wc -l ) -gt 0 ]; then
+        echo "failed during comparison for test $base"
+        exit 2;
+    fi
+}
+
+doatest dumpnoobna.txt          ./dumpnoobna
+doatest nbna_getval_all.txt     ./nbna_getval_runex
+doatest test_nbna_getI3_all.txt ./test_nbna_getI3_runex
+echo "all tests passed"
+
+if [ ! -n "$DONT_DELETE_OUTPUT" ]; then
+    rm -vf testoutput_*.txt;
+fi
+if [ ! -n "$DONT_DELETE_UTILS" ]; then
+    rm -vf dumpnoobna nbna_getval test_nbna_getI3
+fi
