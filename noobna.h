@@ -83,7 +83,7 @@ NOOBNA_STATIC _nbna_int nbna_getI(const noobna_t* in, ...) {
   _nbna_int
     len = in->n, I = 0, fac = 1, n = 0;
   for(n=0; n < len; ++n) fac *= in->ns[n]; /* allow div of in->ns[0] in following */
-  va_start(args, len);
+  va_start(args, in);
   for(n=0; n < len; ++n) {
     _nbna_int curi=0;
     fac /= in->ns[n];
