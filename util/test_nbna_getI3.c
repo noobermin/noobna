@@ -36,6 +36,25 @@ main(int argc, char *argv[]){
     puts(usage); return 0;
   }
   i = atoi(argv[2]), j = atoi(argv[3]), k = atoi(argv[4]);
+  if ( i < 0 || i >= in.ns[0] ) {
+    fprintf(stderr,
+            "i exceeds size of 1st axis (%d out of %d)\n",
+            i, in.ns[0]);
+    return 3;
+  }
+  if ( j < 0 || j >= in.ns[1] ) {
+    fprintf(stderr,
+            "j exceeds size of 2nd axis (%d out of %d)\n",
+            j, in.ns[1]);
+    return 3;
+  }
+  if ( k < 0 || k >= in.ns[2] ) {
+    fprintf(stderr,
+            "k exceeds size of 3rd axis (%d out of %d)\n",
+            k, in.ns[2]);
+    return 3;
+  }
+
   I = nbna_getI(&in, i,j,k);
   printf("q[%d] == " FLT_FMT "\n", I, nbna_getq(&in)[I]);
   nbna_clean(&in);

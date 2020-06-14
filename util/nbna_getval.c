@@ -36,7 +36,15 @@ main(int argc, char *argv[]){
   Is = (int*) malloc(sizeof(int)*n);
   if (Is == NULL) { perror("memory error\n"); return 3; }
 
-  for (int i=2; i < n+2; ++i) Is[i-2] = atoi(argv[i]);
+  for (int i=2; i < n+2; ++i) {
+    Is[i-2] = atoi(argv[i]);
+    if (Is[i-2] < 0 || Is[i-2] >= in.ns[i-2]) {
+      fprintf(stderr,
+              "index %d exceeds corresponding axis (%d out of %d)\n",
+              i-2, Is[i-2], in.ns[i-2]);
+      return 4;
+    }
+  }
   
   I = nbna_getIa(&in, Is);
   printf("q[%d] == " FLT_FMT "\n", I, nbna_getq(&in)[I]);
