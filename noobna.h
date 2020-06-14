@@ -115,9 +115,10 @@ NOOBNA_STATIC void nbna_clean(noobna_t* out) {
 }
 
 NOOBNA_STATIC int nbna_loadfile(FILE* f, noobna_t *out){
-#define _fr(a,b,l) if(fread(a,b,l,f)!=l) goto _noobna_loadfile_fail; 0
+#define _fr(a,b,l) if(fread(a,b,l,f)!=l)        \
+    goto _noobna_loadfile_fail
 #define _mk(dest,type,sz) if ( (dest=(type*)malloc(sizeof(type)*(sz))) == NULL) \
-    goto _noobna_loadfile_fail;
+    goto _noobna_loadfile_fail
   /*. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
   _nbna_int sz=1,acc=0, n, i;
   
