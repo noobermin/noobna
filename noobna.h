@@ -37,9 +37,11 @@ errors.
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <float.h>
 
 typedef int    _nbna_int;
 typedef double _nbna_float;
+#define NOOBNA_INF DBL_MAX
 
 typedef struct nbna_ {
   _nbna_int n,sz;
@@ -55,6 +57,9 @@ typedef struct nbna_ {
   _nbna_float* nbna_getq(const noobna_t*);
   _nbna_int nbna_getI(const noobna_t*, ...);
   _nbna_int nbna_getIa(const noobna_t*, const _nbna_int*);
+  _nbna_float nbna_max(const noobna_t*);
+  _nbna_float nbna_min(const noobna_t*);
+  _nbna_float nbna_avg(const noobna_t*);
 #endif
 
 #ifdef NOOBNA_IMPL
@@ -77,7 +82,7 @@ NOOBNA_STATIC _nbna_float* nbna_getndim(const noobna_t* in, _nbna_int n) {
 NOOBNA_STATIC _nbna_float* nbna_getq(const noobna_t* in) {
   return in->x + in->_off;
 }
-
+/* accessors */
 NOOBNA_STATIC _nbna_int nbna_getI(const noobna_t* in, ...) {
   va_list args;
   _nbna_int
@@ -105,9 +110,6 @@ NOOBNA_STATIC _nbna_int nbna_getIa(const noobna_t* in, const _nbna_int* Is) {
   return I;
 }
 
-
-
-
 NOOBNA_STATIC void nbna_clean(noobna_t* out) {
   free(out->ns); free(out->x); out->n=0;
 }
@@ -117,7 +119,7 @@ NOOBNA_STATIC int nbna_loadfile(FILE* f, noobna_t *out){
 #define _mk(dest,type,sz) if ( (dest=(type*)malloc(sizeof(type)*(sz))) == NULL) \
     goto _noobna_loadfile_fail;
   /*. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
-  int sz=1,acc=0, n;
+  _nbna_int sz=1,acc=0, n, i;
   
   n = out->n  = 0;
   out->ns = NULL, out->x = NULL;
@@ -126,7 +128,7 @@ NOOBNA_STATIC int nbna_loadfile(FILE* f, noobna_t *out){
   /* ns */
   _mk(out->ns,_nbna_int, out->n);
   _fr(out->ns,sizeof(_nbna_int),out->n);
-  for (_nbna_int i=0; i<n; ++i){
+  for (i=0; i<n; ++i){
     _nbna_int cursz = out->ns[i];
     sz*= cursz;
     acc+=cursz;
@@ -136,7 +138,7 @@ NOOBNA_STATIC int nbna_loadfile(FILE* f, noobna_t *out){
   out->_off = acc;
   out->sz   = sz;
   acc=0;
-  for (_nbna_int i=0; i<n; ++i){
+  for (i=0; i<n; ++i){
     _nbna_int cursz = out->ns[i];
     _fr(out->x + acc, sizeof(_nbna_float), cursz);
     acc+=cursz;
@@ -151,6 +153,35 @@ NOOBNA_STATIC int nbna_loadfile(FILE* f, noobna_t *out){
   nbna_clean(out);
   return -1;
 }
+
+/* basic statistics */
+NOOBNA_STATIC _nbna_float nbna_max(const noobna_t* in){
+  _nbna_float ret = -NOOBNA_INF;
+  _nbna_int i;
+  const _nbna_float *data = nbna_getq(in);
+  for(i=0; i < in->sz; ++i)
+    data[i] > ret && (ret = data[i]);
+  return ret;
+}
+
+NOOBNA_STATIC _nbna_float nbna_min(const noobna_t* in){
+  _nbna_float ret = NOOBNA_INF;
+  _nbna_int i;
+  const _nbna_float *data = nbna_getq(in);
+  for(i=0; i < in->sz; ++i)
+    data[i] < ret && (ret = data[i]);
+  return ret;
+}
+
+NOOBNA_STATIC _nbna_float nbna_avg(const noobna_t* in){
+  _nbna_float ret = 0.0;
+  _nbna_int i;
+  const _nbna_float *data = nbna_getq(in);
+  for(i=0; i < in->sz; ++i) ret += data[i];
+  return ret/in->sz;
+}
+
+
 
 #ifdef NOOBNA_DEBUG
 #ifdef _fr

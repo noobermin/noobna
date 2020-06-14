@@ -14,6 +14,7 @@ cd ../test/
 cp -v ../util/dumpnoobna      ./
 cp -v ../util/nbna_getval     ./
 cp -v ../util/test_nbna_getI3 ./
+cp -v ../util/nbna_stats      ./
 
 doatest() {
     base=$1
@@ -29,11 +30,12 @@ doatest() {
 doatest dumpnoobna.txt          ./dumpnoobna
 doatest nbna_getval_all.txt     ./nbna_getval_runex
 doatest test_nbna_getI3_all.txt ./test_nbna_getI3_runex
+doatest nbna_stats.txt          ./nbna_stats
 echo "all tests passed"
 
 if [ ! -n "$DONT_DELETE_OUTPUT" ]; then
     rm -vf testoutput_*.txt;
 fi
 if [ ! -n "$DONT_DELETE_UTILS" ]; then
-    rm -vf dumpnoobna nbna_getval test_nbna_getI3
+    rm -vf dumpnoobna nbna_getval test_nbna_getI3 nbna_stats
 fi
